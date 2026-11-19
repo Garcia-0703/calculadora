@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora científica · álgebra, cálculo, matrices y gráficas</title>
+<meta name="description" content="Calculadora científica web: pasos detallados, álgebra simbólica, ecuaciones, derivadas, integrales, matrices, estadística, gráficas 2D/3D y unidades.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script>window.Plotly||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"><\/script>')</script>
+<style>
+:root{--bg:#f4f6fb;--pn:#fff;--tx:#1b2030;--mu:#6b7385;--bd:#e2e6ef;--pr:#2f5bea;--pr2:#e8eeff;--ok:#16a085;--bad:#d64045;--key:#eef1f8;--op:#dfe6fb}
+@media(prefers-color-scheme:dark){:root{--bg:#10131b;--pn:#181c27;--tx:#e8ebf4;--mu:#9aa3b8;--bd:#2a3042;--pr:#7ea0ff;--pr2:#1d2744;--key:#222839;--op:#2a3454}}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+.app{display:flex;min-height:100vh}
+.side{width:230px;flex:none;background:var(--pn);border-right:1px solid var(--bd);padding:14px 10px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font-weight:700;font-size:17px;padding:4px 10px 12px}
+.side button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-radius:10px;cursor:pointer;font:inherit;color:var(--tx)}
+.side button:hover{background:var(--key)}.side button.on{background:var(--pr);color:#fff}
+.side .ic{width:22px;text-align:center}
+.foot{color:var(--mu);font-size:12px;padding:14px 10px}
+main{flex:1;min-width:0;padding:20px 26px;max-width:1100px}
+h1{font-size:22px;margin:0 0 4px}h3{margin:0 0 8px;font-size:15px}
+.sub{color:var(--mu);margin:0 0 14px}
+.view{display:none}.view.on{display:block}
+.card{background:var(--pn);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{min-width:0}
+label.f{display:flex;flex-direction:column;gap:3px;color:var(--mu);font-size:12px}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:8px 10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
+textarea{width:100%;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:9px;padding:9px 16px;font:inherit;cursor:pointer;font-weight:600}
+.btn.alt{background:var(--pr2);color:var(--pr)}.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.6;cursor:wait}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.chip{background:var(--pr2);color:var(--pr);border:0;border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer}
+.out{margin-top:12px}.blk{margin:10px 0}.lbl{color:var(--mu);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.math{overflow-x:auto;overflow-y:hidden;padding:2px 0}.txt{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+details.steps{margin-top:12px;border-top:1px solid var(--bd);padding-top:10px}summary{cursor:pointer;font-weight:600}
+.steps ol{padding-left:20px;margin:8px 0}.steps li{margin:8px 0}.steps .t{font-weight:600}
+.err{background:rgba(214,64,69,.12);border:1px solid var(--bad);color:var(--tx);border-radius:10px;padding:10px 12px}
+.mu{color:var(--mu)}
+#expr{width:100%;font-size:20px;font-family:ui-monospace,Menlo,Consolas,monospace;padding:12px}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:9px;overflow:hidden}.seg button{border:0;background:var(--bg);color:var(--tx);padding:6px 12px;cursor:pointer}.seg button.on{background:var(--pr);color:#fff}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
+.keys button{border:1px solid var(--bd);background:var(--key);color:var(--tx);border-radius:10px;padding:13px 4px;font-size:16px;cursor:pointer}
+.keys button:hover{filter:brightness(.96)}.keys button.op{background:var(--op)}.keys button.eq{background:var(--pr);color:#fff;grid-column:span 3;font-weight:700}.keys button.fn{font-size:14px}
+.hist ul{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto}.hist li{padding:7px 8px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:10px}.hist li:hover{background:var(--key)}.hist .r{color:var(--pr);font-family:ui-monospace,monospace}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--bd);padding:6px 9px;text-align:left}th{background:var(--key)}tr.click{cursor:pointer}tr.click:hover{background:var(--key)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plot{width:100%;height:440px}
+.swatch{width:10px;height:34px;border-radius:5px;display:inline-block}
+@media(max-width:860px){.app{flex-direction:column}.side{width:100%;height:auto;position:static;display:flex;overflow-x:auto;padding:8px;gap:4px}.brand,.foot{display:none}.side button{width:auto;white-space:nowrap}main{padding:14px}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side" id="nav"><div class="brand">∑ Calculadora científica</div><div class="foot">Álgebra · Cálculo · Matrices · Estadística · Gráficas</div></aside>
+<main>
+
+<section class="view on" id="v-calc">
+  <h1>Calculadora</h1><p class="sub">Alta precisión, exacto y decimal, números complejos, factoriales y paso a paso.</p>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <div class="seg" id="angle"><button data-v="rad" class="on">RAD</button><button data-v="deg">DEG</button></div>
+      <label class="f">Precisión<select id="digits"><option>10</option><option selected>15</option><option>30</option><option>50</option><option>100</option></select></label>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px;color:var(--tx);font-size:14px"><input type="checkbox" id="wantSteps" checked> Mostrar pasos</label>
+    </div>
+    <input id="expr" placeholder="p. ej.  sqrt(2)+3^4 ·  (1+i)^2 ·  5! ·  sin(30°) ·  1/3+1/6" autocomplete="off" spellcheck="false">
+    <div class="out" id="calcOut"><span class="mu">Escribe una expresión y pulsa Enter o «=».</span></div>
+  </div>
+  <div class="keys" id="keys"></div>
+  <div class="card hist"><div class="row" style="justify-content:space-between"><h3>Historial</h3><button class="btn alt" id="clearHist">Borrar</button></div><ul id="hist"></ul></div>
+</section>
+
+<section class="view" id="v-algebra">
+  <h1>Álgebra simbólica</h1><p class="sub">Simplifica, expande, factoriza, fracciones parciales, sustitución…</p>
+  <div class="card">
+    <label class="f">Expresión<input id="al-expr" value="(x^2-1)/(x-1)" style="width:100%"></label>
+    <div class="row" style="margin-top:10px">
+      <label class="f">Operación<select id="al-op"></select></label>
+      <label class="f" id="al-varw">Variable<input id="al-var" value="x" size="4"></label>
+      <label class="f" id="al-valw">Valor<input id="al-val" value="2" size="8"></label>
+      <button class="btn" id="al-go">Calcular</button>
+    </div>
+    <div class="chips" id="al-ex"></div>
+    <div class="out" id="al-out"></div>
+  </div>
+</section>
+
+<section class="view" id="v-solve">
+  <h1>Ecuaciones, sistemas e inecuaciones</h1><p class="sub">Una ecuación, varias (una por línea = sistema) o una inecuación (&lt;, &gt;, &lt;=, &gt;=).</p>
+  <div class="card">
+    <textarea id="so-text" rows="3">x^2-5x+6=0</textarea>
+    <div class="row" style="margin-top:10px"><label class="f">Incógnita (opcional)<input id="so-var" size="6" placeholder="x"></label><button class="btn" id="so-go">Resolver</button></div>
+    <div class="chips" id="so-ex"></div>
+    <div class="out" id="so-out"></div>
+  </div>
+</section>
+
+<section class="view" id="v-calculus">
+  <h1>Derivadas e integrales</h1><p class="sub">Con pasos: reglas de derivación e integración, límites, series de Taylor y gradiente.</p>
+  <div class="card">
+    <div class="row">
+      <label class="f">Operación<select id="ca-kind"><option value="derivative">Derivada</option><option value="integral">Integral</option><option value="limit">Límite</option><option value="series">Serie de Taylor</option><option value="gradient">Gradiente (varias variables)</option></select></label>
+      <label class="f" style="flex:1;min-width:220px">Función<input id="ca-expr" value="x^2*sin(x)" style="width:100%"></label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="f" data-k="derivative integral limit series">Variable<input id="ca-var" size="4" placeholder="x"></label>
+      <label class="f" data-k="derivative">Orden<input id="ca-order" type="number" min="1" max="6" value="1" style="width:70px"></label>
+      <label class="f" data-k="derivative">Evaluar en<input id="ca-at" size="7" placeholder="opcional"></label>
+      <label class="f" data-k="integral">Límite inferior a<input id="ca-a" size="7" placeholder="opcional"></label>
+      <label class="f" data-k="integral">Límite superior b<input id="ca-b" size="7" placeholder="opcional"></label>
+      <label class="f" data-k="limit series">Punto<input id="ca-point" size="7" value="0"></label>
+      <label class="f" data-k="limit">Lado<select id="ca-dir"><option value="both">ambos</option><option value="right">derecha</option><option value="left">izquierda</option></select></label>
+      <label class="f" data-k="series">Orden n<input id="ca-n" type="number" min="1" max="15" value="6" style="width:70px"></label>
+      <button class="btn" id="ca-go">Calcular</button>
+    </div>
+    <div class="chips" id="ca-ex"></div>
+    <div class="out" id="ca-out"></div>
+  </div>
+</section>
+
+<section class="view" id="v-matrix">
+  <h1>Matrices</h1><p class="sub">Filas en líneas distintas (o separadas con «;»); entradas separadas por espacios o comas. Admite fracciones y símbolos.</p>
+  <div class="card">
+    <div class="g2">
+      <label class="f">Matriz A<textarea id="ma-a" rows="4">1 2\n3 4</textarea></label>
+      <label class="f" id="ma-bw">Matriz B<textarea id="ma-b" rows="4">0 1\n1 0</textarea></label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="f">Operación<select id="ma-op"></select></label>
+      <label class="f" id="ma-kw">Valor k / exponente<input id="ma-k" size="6" value="2"></label>
+      <button class="btn" id="ma-go">Calcular</button>
+    </div>
+    <div class="out" id="ma-out"></div>
+  </div>
+</section>
+
+<section class="view" id="v-stats">
+  <h1>Estadística y regresión</h1><p class="sub">Datos separados por espacios, comas o saltos de línea.</p>
+  <div class="card"><h3>Estadística descriptiva</h3>
+    <textarea id="st-data" rows="3">2 4 4 4 5 5 7 9</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn" id="st-go">Calcular</button></div>
+    <div class="out" id="st-out"></div><div class="plot" id="st-plot" style="height:300px;display:none"></div>
+  </div>
+  <div class="card"><h3>Regresión</h3>
+    <div class="g2"><label class="f">Valores X<textarea id="rg-x" rows="3">1 2 3 4 5</textarea></label><label class="f">Valores Y<textarea id="rg-y" rows="3">2.1 3.9 6.2 7.8 10.1</textarea></label></div>
+    <div class="row" style="margin-top:10px">
+      <label class="f">Modelo<select id="rg-model"></select></label>
+      <label class="f" id="rg-dw">Grado n<input id="rg-deg" type="number" min="1" max="8" value="2" style="width:70px"></label>
+      <label class="f">Predecir y para x =<input id="rg-x0" size="8" placeholder="opcional"></label>
+      <button class="btn" id="rg-go">Ajustar</button>
+    </div>
+    <div class="out" id="rg-out"></div><div class="plot" id="rg-plot" style="height:360px;display:none"></div>
+  </div>
+</section>
+
+<section class="view" id="v-graph">
+  <h1>Gráficas 2D y 3D</h1><p class="sub">Escribe funciones y pulsa Graficar. Rota, haz zoom y desplaza con el ratón.</p>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px"><div class="seg" id="gmode"><button data-v="2d" class="on">2D · y = f(x)</button><button data-v="3d">3D · z = f(x, y)</button></div></div>
+    <div id="g2d">
+      <div id="g-fns"></div>
+      <div class="row"><label class="f">x mín<input id="g-xmin" value="-10" size="6"></label><label class="f">x máx<input id="g-xmax" value="10" size="6"></label><button class="btn" id="g-go">Graficar</button></div>
+    </div>
+    <div id="g3d" style="display:none">
+      <label class="f">z = f(x, y)<input id="g3-expr" value="sin(x)*cos(y)" style="width:100%"></label>
+      <div class="row" style="margin-top:10px"><label class="f">x mín<input id="g3-xmin" value="-5" size="5"></label><label class="f">x máx<input id="g3-xmax" value="5" size="5"></label><label class="f">y mín<input id="g3-ymin" value="-5" size="5"></label><label class="f">y máx<input id="g3-ymax" value="5" size="5"></label><button class="btn" id="g3-go">Graficar</button></div>
+    </div>
+    <div class="out" id="g-err"></div>
+    <div class="plot" id="g-plot" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section class="view" id="v-units">
+  <h1>Unidades y constantes</h1><p class="sub">Conversor de unidades y tabla de constantes físicas y matemáticas.</p>
+  <div class="g2">
+    <div class="card"><h3>Conversor</h3>
+      <div class="row">
+        <label class="f">Categoría<select id="un-cat"></select></label>
+        <label class="f">Valor<input id="un-val" value="1" size="10"></label>
+      </div>
+      <div class="row" style="margin-top:10px"><label class="f">De<select id="un-from"></select></label><button class="btn alt" id="un-swap" title="Intercambiar">⇄</button><label class="f">A<select id="un-to"></select></label></div>
+      <div class="out" id="un-out"></div>
+    </div>
+    <div class="card"><h3>Constantes</h3>
+      <input id="cs-q" placeholder="Buscar (p. ej. luz, Planck, π)…" style="width:100%;margin-bottom:8px">
+      <div style="max-height:360px;overflow:auto"><table><thead><tr><th>Nombre</th><th>Símbolo</th><th>Valor</th><th>Unidad</th></tr></thead><tbody id="cs-body"></tbody></table></div>
+      <div class="mu" style="margin-top:6px;font-size:12px">Pulsa una fila para copiar el valor y usarlo en la calculadora.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* ================= utilidades ================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mkEl(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+async function api(path,body){
+  let res;
+  try{res=await fetch(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})}
+  catch(e){throw new Error('No se pudo conectar con el servidor de cálculo. Revisa tu conexión e inténtalo de nuevo.')}
+  let data=null;try{data=await res.json()}catch(e){}
+  if(!res.ok)throw new Error((data&&data.error&&data.error.message)||`Error del servidor (HTTP ${res.status}).`);
+  return data}
+function tex(el,latex,display=true){if(window.katex){try{katex.render(latex,el,{throwOnError:false,displayMode:display});return}catch(e){}}el.textContent=latex}
+function showErr(out,msg){out.innerHTML='';const d=mkEl('div','err','⚠️ '+msg);out.appendChild(d)}
+function renderResult(out,d){
+  out.innerHTML='';
+  (d.blocks||[]).forEach(b=>{
+    const w=mkEl('div','blk');w.appendChild(mkEl('div','lbl',b.label));
+    if(b.latex){const m=mkEl('div','math');tex(m,b.latex);w.appendChild(m)}
+    if(b.text){w.appendChild(mkEl('div','txt',b.text))}
+    out.appendChild(w)});
+  if(d.steps&&d.steps.length){
+    const det=mkEl('details','steps');det.open=true;det.appendChild(mkEl('summary',null,`Paso a paso (${d.steps.length})`));
+    const ol=mkEl('ol');
+    d.steps.forEach(s=>{const li=mkEl('li');li.appendChild(mkEl('span','t',s.title));
+      if(s.latex){const m=mkEl('div','math');tex(m,s.latex);li.appendChild(m)}
+      if(s.text){li.appendChild(mkEl('div','mu',s.text))}ol.appendChild(li)});
+    det.appendChild(ol);out.appendChild(det)}}
+async function run(btn,out,path,body){
+  if(btn)btn.disabled=true;out.innerHTML='';out.appendChild(mkEl('div','mu','⏳ Calculando…'));
+  try{const d=await api(path,body);renderResult(out,d);return d}
+  catch(e){showErr(out,e.message);return null}
+  finally{if(btn)btn.disabled=false}}
+const val=id=>{const v=$(id).value;return v==null?'':String(v).trim()};
+const opt=id=>{const v=val(id);return v===''?null:v};
+function onEnter(id,fn){$(id).addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fn()}})}
+function fillSelect(id,items){const s=$(id);s.innerHTML='';items.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;s.appendChild(o)})}
+function chips(id,list,fn){const c=$(id);c.innerHTML='';list.forEach(x=>{const b=mkEl('button','chip',x.label||x);b.onclick=()=>fn(x);c.appendChild(b)})}
+const plotCfg={responsive:true,displaylogo:false};
+const plotBase=()=>({margin:{l:48,r:14,t:30,b:40},paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',font:{color:getComputedStyle(document.body).color||'#222'}});
+
+/* ================= navegación ================= */
+const VIEWS=[['calc','🧮','Calculadora'],['algebra','𝑥','Álgebra'],['solve','＝','Ecuaciones'],['calculus','∫','Derivadas e integrales'],['matrix','▦','Matrices'],['stats','📊','Estadística'],['graph','📈','Gráficas 2D/3D'],['units','📏','Unidades y constantes']];
+function go(id){
+  VIEWS.forEach(([v])=>{$('v-'+v).classList.toggle('on',v===id)});
+  [...$('nav').querySelectorAll('button')].forEach(b=>b.classList.toggle('on',b.dataset.v===id));
+  if(id==='graph'&&!go.done){go.done=true;plotGraph()}
+  if(id==='units'&&!unitsReady)initUnits();
+  try{history.replaceState(null,'','#'+id)}catch(e){}}
+VIEWS.forEach(([v,ic,t])=>{const b=mkEl('button');b.dataset.v=v;b.innerHTML=`<span class="ic">${ic}</span><span>${esc(t)}</span>`;b.onclick=()=>go(v);$('nav').insertBefore(b,$('nav').querySelector('.foot'))});
+
+/* ================= calculadora ================= */
+const KEYS=[['sin','sin(','fn'],['cos','cos(','fn'],['tan','tan(','fn'],['(','(','op'],[')',')','op'],['⌫','BACK','op'],
+ ['sin⁻¹','asin(','fn'],['cos⁻¹','acos(','fn'],['tan⁻¹','atan(','fn'],['π','pi','op'],['e','e','op'],['AC','CLEAR','op'],
+ ['ln','ln(','fn'],['log','log(','fn'],['√','sqrt(','fn'],['x²','^2','op'],['xʸ','^','op'],['÷','/','op'],
+ ['7','7'],['8','8'],['9','9'],['×','*','op'],['i','i','op'],['n!','!','op'],
+ ['4','4'],['5','5'],['6','6'],['−','-','op'],['Ans','ans','op'],['|x|','abs(','fn'],
+ ['1','1'],['2','2'],['3','3'],['+','+','op'],[',',',','op'],['°','°','op'],
+ ['0','0'],['.','.'],['×10ˣ','*10^','op'],['=','EQ','eq']];
+const S={angle:'rad',ans:null,hist:[]};
+function insertAtCursor(t){
+  const i=$('expr');const a=i.selectionStart??i.value.length,b=i.selectionEnd??i.value.length;
+  i.value=i.value.slice(0,a)+t+i.value.slice(b);const p=a+t.length;
+  try{i.setSelectionRange(p,p)}catch(e){}i.focus()}
+KEYS.forEach(([lab,ins,cls])=>{
+  const b=mkEl('button',cls||'',lab);
+  b.onclick=()=>{
+    if(ins==='CLEAR'){$('expr').value='';$('calcOut').innerHTML='';$('expr').focus()}
+    else if(ins==='BACK'){const i=$('expr'),a=i.selectionStart??i.value.length,e=i.selectionEnd??a;
+      if(a!==e)i.value=i.value.slice(0,a)+i.value.slice(e);else if(a>0){i.value=i.value.slice(0,a-1)+i.value.slice(a);try{i.setSelectionRange(a-1,a-1)}catch(x){}}i.focus()}
+    else if(ins==='EQ')calc();
+    else insertAtCursor(ins)};
+  $('keys').appendChild(b)});
+[...$('angle').querySelectorAll('button')].forEach(b=>b.onclick=()=>{S.angle=b.dataset.v;[...$('angle').querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b))});
+function loadHist(){try{S.hist=JSON.parse(localStorage.getItem('calc_hist')||'[]')}catch(e){S.hist=[]}drawHist()}
+function saveHist(){try{localStorage.setItem('calc_hist',JSON.stringify(S.hist.slice(0,50)))}catch(e){}}
+function drawHist(){const ul=$('hist');ul.innerHTML='';S.hist.slice(0,50).forEach(h=>{const li=mkEl('li');li.appendChild(mkEl('span',null,h.expr));li.appendChild(mkEl('span','r','= '+h.res));li.onclick=()=>{$('expr').value=h.expr;$('expr').focus()};ul.appendChild(li)});
+  if(!S.hist.length)ul.appendChild(mkEl('li','mu','Aún no hay cálculos.'))}
+$('clearHist').onclick=()=>{S.hist=[];saveHist();drawHist()};
+async function calc(){
+  const expr=val('expr');if(!expr)return;
+  const d=await run(null,$('calcOut'),'/api/calc',{expr,angle:S.angle,digits:parseInt(val('digits'))||15,ans:S.ans,steps:$('wantSteps').checked});
+  if(d){S.ans=d.ans||S.ans;
+    const main=d.blocks.find(b=>b.text&&/Aproximaci|Resultado|Verdadero|Falso/.test(b.label+b.text))||d.blocks[0];
+    const txt=(d.blocks.find(b=>b.label.startsWith('Aproximaci'))||{}).text||(d.blocks[0].text)||d.ans||'';
+    S.hist.unshift({expr,res:String(txt||d.ans||'').slice(0,40)});saveHist();drawHist()}}
+onEnter('expr',calc);
+loadHist();
+
+/* ================= álgebra ================= */
+const AL_OPS=[['simplify','Simplificar'],['expand','Expandir'],['factor','Factorizar'],['cancel','Cancelar factores'],['apart','Fracciones parciales'],['together','Combinar fracciones'],['trigsimp','Simplificar trigonométrica'],['expand_trig','Expandir trigonométrica'],['expand_log','Expandir logaritmos'],['logcombine','Combinar logaritmos'],['radsimp','Racionalizar'],['collect','Agrupar por variable'],['subs','Sustituir variable por valor']];
+fillSelect('al-op',AL_OPS);
+function alToggle(){const o=val('al-op');$('al-varw').style.display=(o==='subs'||o==='collect')?'':'none';$('al-valw').style.display=o==='subs'?'':'none'}
+$('al-op').onchange=alToggle;alToggle();
+async function algebra(){await run($('al-go'),$('al-out'),'/api/algebra',{expr:val('al-expr'),op:val('al-op'),var:opt('al-var'),value:opt('al-val'),digits:15})}
+$('al-go').onclick=algebra;onEnter('al-expr',algebra);
+chips('al-ex',[['(x^2-1)/(x-1)','simplify'],['(x+1)^4','expand'],['x^3-6x^2+11x-6','factor'],['1/(x^2-1)','apart'],['sin(x)^2+cos(x)^2','trigsimp'],['(x^2+3x)/(x+3)','cancel']].map(([e,o])=>({label:e+'  ·  '+o,e,o})),x=>{$('al-expr').value=x.e;$('al-op').value=x.o;alToggle();algebra()});
+
+/* ================= ecuaciones ================= */
+async function solve(){await run($('so-go'),$('so-out'),'/api/solve',{text:$('so-text').value,var:opt('so-var'),digits:15,angle:S.angle})}
+$('so-go').onclick=solve;
+chips('so-ex',['x^2-5x+6=0','2x+6=0','x^3-6x^2+11x-6=0','x^2+1=0','cos(x)=x','e^x=5','x+y=3\n2x-y=0','x^2+y^2=25\nx-y=1','x^2-4>=0','(x-1)/(x+2)<0'].map(t=>({label:t.replace(/\n/g,'  ;  '),t})),x=>{$('so-text').value=x.t;solve()});
+
+/* ================= cálculo ================= */
+function caToggle(){const k=val('ca-kind');document.querySelectorAll('[data-k]').forEach(l=>{l.style.display=l.dataset.k.split(' ').includes(k)?'':'none'})}
+$('ca-kind').onchange=caToggle;caToggle();
+async function calculus(){
+  const k=val('ca-kind'),b={kind:k,expr:val('ca-expr'),digits:15};
+  if(['derivative','integral','limit','series'].includes(k))b.var=opt('ca-var');
+  if(k==='derivative'){b.order=parseInt(val('ca-order'))||1;b.at=opt('ca-at')}
+  if(k==='integral'){b.a=opt('ca-a');b.b=opt('ca-b')}
+  if(k==='limit'){b.point=val('ca-point')||'0';b.direction=val('ca-dir')}
+  if(k==='series'){b.point=val('ca-point')||'0';b.n=parseInt(val('ca-n'))||6}
+  await run($('ca-go'),$('ca-out'),'/api/calculus',b)}
+$('ca-go').onclick=calculus;onEnter('ca-expr',calculus);
+chips('ca-ex',[['derivative','x^2*sin(x)'],['derivative','(x^2+1)/(x-3)'],['derivative','sin(3x^2)'],['integral','x*e^x'],['integral','3x^2+2x+1'],['integral','sin(x)',0,'pi'],['integral','e^(-x^2)','-oo','oo'],['limit','sin(x)/x'],['limit','(1+1/x)^x','oo'],['series','e^x'],['gradient','x^2+x*y+z^3']].map(([k,e,a,b])=>({label:`${({derivative:'d/dx',integral:'∫',limit:'lím',series:'Taylor',gradient:'∇'})[k]}  ${e}${a!=null?`  [${a}, ${b}]`:''}`,k,e,a,b})),
+  x=>{$('ca-kind').value=x.k;caToggle();$('ca-expr').value=x.e;$('ca-a').value=(x.k==='integral'&&x.a!=null)?x.a:'';$('ca-b').value=(x.k==='integral'&&x.b!=null)?x.b:'';if(x.k==='limit')$('ca-point').value=x.a||'0';calculus()});
+
+/* ================= matrices ================= */
+const MA_OPS=[['det','Determinante'],['inv','Inversa (con pasos)'],['transpose','Transpuesta'],['trace','Traza'],['rank','Rango'],['rref','Forma escalonada reducida'],['eigen','Autovalores y autovectores'],['charpoly','Polinomio característico'],['nullspace','Núcleo'],['add','A + B'],['sub','A − B'],['mul','A · B'],['pow','Potencia Aⁿ'],['scalar','k · A'],['solve','Resolver A·X = B']];
+fillSelect('ma-op',MA_OPS);
+$('ma-a').value='1 2\n3 4';$('ma-b').value='0 1\n1 0';
+function maToggle(){const o=val('ma-op');$('ma-bw').style.display=['add','sub','mul','solve'].includes(o)?'':'none';$('ma-kw').style.display=['pow','scalar'].includes(o)?'':'none'}
+$('ma-op').onchange=maToggle;maToggle();
+async function matrix(){await run($('ma-go'),$('ma-out'),'/api/matrix',{op:val('ma-op'),A:$('ma-a').value,B:$('ma-b').value.trim()?$('ma-b').value:null,k:opt('ma-k'),digits:15})}
+$('ma-go').onclick=matrix;
+
+/* ================= estadística ================= */
+async function stats(){
+  const out=$('st-out'),btn=$('st-go');btn.disabled=true;out.innerHTML='<div class="mu">⏳ Calculando…</div>';
+  try{const d=await api('/api/stats',{data:$('st-data').value});
+    out.innerHTML='';const t=mkEl('table');const tb=mkEl('tbody');
+    d.stats.forEach(s=>{const tr=mkEl('tr');tr.appendChild(mkEl('td',null,s.name));tr.appendChild(mkEl('td','txt',String(s.value)));tb.appendChild(tr)});t.appendChild(tb);out.appendChild(t);
+    const pl=$('st-plot');pl.style.display='block';
+    Plotly.react(pl,[{type:'histogram',x:d.data,name:'Histograma',marker:{color:'#2f5bea'},opacity:.8},{type:'box',x:d.data,name:'Caja',yaxis:'y2',marker:{color:'#d64045'},boxpoints:'all',jitter:.4}],
+      {...plotBase(),height:300,showlegend:false,yaxis:{domain:[0,.62],title:'frecuencia'},yaxis2:{domain:[.7,1],showticklabels:false},xaxis:{title:'valor'}},plotCfg)
+  }catch(e){showErr(out,e.message);$('st-plot').style.display='none'}finally{btn.disabled=false}}
+$('st-go').onclick=stats;
+fillSelect('rg-model',[['linear','Lineal  y = a + b·x'],['quadratic','Cuadrática'],['cubic','Cúbica'],['poly','Polinómica de grado n'],['exp','Exponencial  y = a·eᵇˣ'],['log','Logarítmica  y = a + b·ln x'],['power','Potencia  y = a·xᵇ']]);
+$('rg-model').onchange=()=>{$('rg-dw').style.display=val('rg-model')==='poly'?'':'none'};$('rg-dw').style.display='none';
+async function regression(){
+  const out=$('rg-out'),btn=$('rg-go');btn.disabled=true;out.innerHTML='<div class="mu">⏳ Calculando…</div>';
+  try{const d=await api('/api/regression',{x:$('rg-x').value,y:$('rg-y').value,model:val('rg-model'),degree:parseInt(val('rg-deg'))||2,x0:opt('rg-x0')});
+    out.innerHTML='';
+    const rows=[['Ecuación',d.equation],['R² (coef. de determinación)',d.r2==null?'—':d.r2.toFixed(6)],...(d.r!=null?[['r (correlación)',d.r.toFixed(6)]]:[]),['Error cuadrático medio (RMSE)',d.rmse.toPrecision(6)],['n',d.n],...(d.prediction?[[`Predicción y(${d.prediction.x})`,d.prediction.y==null?'indefinida':d.prediction.y.toPrecision(8)]]:[])];
+    const t=mkEl('table');const tb=mkEl('tbody');rows.forEach(r=>{const tr=mkEl('tr');tr.appendChild(mkEl('td',null,r[0]));tr.appendChild(mkEl('td','txt',String(r[1])));tb.appendChild(tr)});t.appendChild(tb);out.appendChild(t);
+    const pl=$('rg-plot');pl.style.display='block';
+    const tr=[{type:'scatter',mode:'markers',x:d.x,y:d.y,name:'Datos',marker:{size:9,color:'#2f5bea'}},{type:'scatter',mode:'lines',x:d.curve.x,y:d.curve.y,name:'Ajuste',line:{color:'#d64045',width:3}}];
+    if(d.prediction&&d.prediction.y!=null)tr.push({type:'scatter',mode:'markers',x:[d.prediction.x],y:[d.prediction.y],name:'Predicción',marker:{size:12,symbol:'diamond',color:'#16a085'}});
+    Plotly.react(pl,tr,{...plotBase(),height:360,xaxis:{title:'x'},yaxis:{title:'y'},legend:{orientation:'h'}},plotCfg)
+  }catch(e){showErr(out,e.message);$('rg-plot').style.display='none'}finally{btn.disabled=false}}
+$('rg-go').onclick=regression;
+
+/* ================= gráficas ================= */
+const GCOL=['#2f5bea','#d64045','#16a085','#e69f00','#8e44ad'],GDEF=['sin(x)','x^2/10','1/x','',''];
+GDEF.forEach((d,i)=>{const r=mkEl('div','row');r.style.marginBottom='6px';const sw=mkEl('span','swatch');sw.style.background=GCOL[i];r.appendChild(sw);
+  const inp=document.createElement('input');inp.id='gf'+i;inp.value=d;inp.placeholder='f'+(i+1)+'(x)';inp.style.flex='1';inp.addEventListener('keydown',e=>{if(e.key==='Enter')plotGraph()});r.appendChild(inp);$('g-fns').appendChild(r)});
+let gmode='2d';
+[...$('gmode').querySelectorAll('button')].forEach(b=>b.onclick=()=>{gmode=b.dataset.v;[...$('gmode').querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));$('g2d').style.display=gmode==='2d'?'':'none';$('g3d').style.display=gmode==='3d'?'':'none';plotGraph()});
+async function plotGraph(){
+  const err=$('g-err'),pl=$('g-plot');err.innerHTML='';
+  try{
+    if(gmode==='2d'){
+      const exprs=GDEF.map((_,i)=>val('gf'+i)).filter(Boolean);
+      const d=await api('/api/graph2d',{exprs,xmin:val('g-xmin'),xmax:val('g-xmax'),n:900,angle:S.angle});
+      const tr=d.series.map((s,i)=>({type:'scatter',mode:'lines',x:d.x,y:s.y,name:s.expr,connectgaps:false,line:{color:GCOL[GDEF.map((_,k)=>val('gf'+k)).indexOf(s.expr)%5]||GCOL[i],width:2.5}}));
+      Plotly.react(pl,tr,{...plotBase(),height:440,xaxis:{title:'x',zeroline:true},yaxis:{title:'y',zeroline:true},legend:{orientation:'h'}},plotCfg)
+    }else{
+      const d=await api('/api/graph3d',{expr:val('g3-expr'),xmin:val('g3-xmin'),xmax:val('g3-xmax'),ymin:val('g3-ymin'),ymax:val('g3-ymax'),n:50,angle:S.angle});
+      Plotly.react(pl,[{type:'surface',x:d.x,y:d.y,z:d.z,colorscale:'Viridis',contours:{z:{show:true,usecolormap:true,project:{z:true}}}}],
+        {...plotBase(),height:520,margin:{l:0,r:0,t:10,b:0},scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}}},plotCfg)}
+  }catch(e){showErr(err,e.message)}}
+$('g-go').onclick=plotGraph;$('g3-go').onclick=plotGraph;onEnter('g3-expr',plotGraph);
+
+/* ================= unidades y constantes ================= */
+let unitsReady=false,UN={},CONSTS=[];
+async function initUnits(){
+  unitsReady=true;
+  try{const c=await api('/api/units/catalog');UN=c.categories;fillSelect('un-cat',Object.keys(UN).map(k=>[k,k]));unitsFill();unitsConvert()}catch(e){showErr($('un-out'),e.message);unitsReady=false}
+  try{const c=await api('/api/constants');CONSTS=c.constants;drawConsts()}catch(e){$('cs-body').innerHTML='';const tr=mkEl('tr');tr.appendChild(mkEl('td','mu',e.message));$('cs-body').appendChild(tr)}}
+function unitsFill(){const u=UN[val('un-cat')]||[];fillSelect('un-from',u.map(x=>[x,x]));fillSelect('un-to',u.map(x=>[x,x]));if(u.length>1)$('un-to').value=u[1]}
+async function unitsConvert(){
+  const out=$('un-out');if(!val('un-cat'))return;
+  try{const d=await api('/api/units/convert',{category:val('un-cat'),value:val('un-val'),frm:val('un-from'),to:val('un-to')});
+    out.innerHTML='';const b=mkEl('div','blk');b.appendChild(mkEl('div','lbl','Resultado'));b.appendChild(mkEl('div',null,`${val('un-val')} ${val('un-from')} = ${d.text} ${val('un-to')}`));b.lastChild.style.fontSize='20px';out.appendChild(b)}
+  catch(e){showErr(out,e.message)}}
+$('un-cat').onchange=()=>{unitsFill();unitsConvert()};
+['un-val','un-from','un-to'].forEach(id=>{$(id).addEventListener(id==='un-val'?'input':'change',unitsConvert)});
+$('un-swap').onclick=()=>{const a=val('un-from'),b=val('un-to');$('un-from').value=b;$('un-to').value=a;unitsConvert()};
+function drawConsts(){
+  const q=val('cs-q').toLowerCase(),tb=$('cs-body');tb.innerHTML='';
+  CONSTS.filter(c=>!q||(c.name+' '+c.symbol+' '+c.category).toLowerCase().includes(q)).forEach(c=>{
+    const tr=mkEl('tr','click');[c.name,c.symbol,c.text,c.unit].forEach((t,i)=>tr.appendChild(mkEl('td',i===2?'txt':null,t)));
+    tr.title='Usar '+c.text+' en la calculadora';tr.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(c.text)}catch(e){}$('expr').value+=(($('expr').value&&!/[+\-*/^(]$/.test($('expr').value))?'*':'')+c.text;go('calc');$('expr').focus()};tb.appendChild(tr)})}
+$('cs-q').addEventListener('input',drawConsts);
+
+go((location.hash||'#calc').slice(1).replace(/[^a-z]/g,'')&&VIEWS.some(v=>v[0]===location.hash.slice(1))?location.hash.slice(1):'calc');
+</script>
+</body>
+</html>
